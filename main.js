@@ -24,10 +24,10 @@ client.once('ready', () => {
 // Handle messages
 client.on('message', async (message) => {
   if (message.author.bot) return;
-  if (!message.content.startsWith('!solve')) return;
+  if (!message.content.startsWith('f!kds')) return;
 
   // Find target message
-  let target_message = message.content.slice(6);
+  let target_message = message.content.slice(5);
   target_message = target_message.trim();
   
   kds.karuta_date_solve(message.channel, target_message);
