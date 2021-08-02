@@ -1,0 +1,6 @@
+data/
+lib/
+node_modules/
+.env
+.openode
+test.js
