@@ -206,7 +206,7 @@ function instructions_to_text(target) {
 // Solve date
 date_solve.karuta_date_solve = function (channel, image_url) {
   Jimp.read(image_url)
-    .then((image) => {
+    .then(async (image) => {
       // Create source mat
       let src = cv.matFromImageData(image.bitmap);
 
