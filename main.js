@@ -29,8 +29,34 @@ client.on('message', async (message) => {
   // Find target message
   let target_message = message.content.slice(5);
   target_message = target_message.trim();
-  
-  kds.karuta_date_solve(message.channel, target_message);
+
+  // If target is already a URL
+  if (target_message.endsWith('.png')) {
+    kds.karuta_date_solve(message.channel, target_message);
+  } else {
+  // Go to target message and get embed image
+  channel.messages.fetch(target_message)
+    .then(async (message) => {
+      // Check for embed and image on target
+      if (message.embeds[0] === undefined) {
+        channel.send('No embed found on target.');
+        return;
+      }
+      let date_image = message.embeds[0].image;
+      if (date_image === null) {
+        channel.send('No image found on target.');
+        return;
+      }
+      
+      kds.karuta_date_solve(message.channel, date_image.url);
+
+    }).catch((error) => {
+      console.error(error);
+      if (error.name === 'DiscordAPIError') {
+        channel.send('Target message not found.');
+      }
+    });
+  }
 });
   
 // Log in

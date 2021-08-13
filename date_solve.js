@@ -203,21 +203,12 @@ function instructions_to_text(target) {
   }
 }
 
-// Handle messages
-date_solve.karuta_date_solve = function (channel, target_message) {
-  // Go to target message and get embed image
-  channel.messages.fetch(target_message)
-    .then(async (message) => {
-      // Check for embed and image on target
-      if (message.embeds[0] === undefined) {
-        channel.send('No embed found on target.');
-        return;
-      }
-      let date_image = message.embeds[0].image;
-      if (date_image === null) {
-        channel.send('No image found on target.');
-        return;
-      }
+// Solve date
+date_solve.karuta_date_solve = function (channel, image_url) {
+  Jimp.read(image_url)
+    .then((image) => {
+      // Create source mat
+      let src = cv.matFromImageData(image.bitmap);
 
       // Build a grid
       let board = [];
@@ -239,10 +230,6 @@ date_solve.karuta_date_solve = function (channel, target_message) {
           }
         }
       }
-
-      // Create source mat
-      let jimp_src = await Jimp.read(date_image.url);
-      let src = cv.matFromImageData(jimp_src.bitmap);
 
       // Place attractions 
       let att = 0;
@@ -513,7 +500,8 @@ date_solve.karuta_date_solve = function (channel, target_message) {
 
         // Go home early
         if (val[0][0] === 'H') {
-          let score = Math.ceil((stats[1] + stats[2] + stats[3])*(100-stats[4])/600);
+          let score = Math.ceil((Math.max(0, stats[1]) + Math.max(0, stats[2])
+                        + Math.max(0, stats[3]))*(100-stats[4])/600);
           score *= 100;
           score += stats[4];
           if (score > best_score[0]) {
@@ -612,7 +600,7 @@ date_solve.karuta_date_solve = function (channel, target_message) {
               new_stats[3] = Math.min(100, new_stats[3] - 8*(t+1));
               new_stats[4] -= 4*(t+1);
               let new_timers = timers.slice();
-              for (let i = 0; i < 11; i++) {
+              for (let i = 0; i < 12; i++) {
                 new_timers[i] = Math.max(0, new_timers[i]-(t+1));
               }
               new_timers[attraction_indices[poi[p][0]]] = 10;
@@ -678,9 +666,7 @@ date_solve.karuta_date_solve = function (channel, target_message) {
 
     }).catch((error) => {
       console.error(error);
-      if (error.name === 'DiscordAPIError') {
-        channel.send('Target message not found.');
-      }
+      channel.send('Error resolving image.');
     });
 }
 
