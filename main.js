@@ -35,16 +35,16 @@ client.on('message', async (message) => {
     kds.karuta_date_solve(message.channel, target_message);
   } else {
   // Go to target message and get embed image
-  channel.messages.fetch(target_message)
+  message.channel.messages.fetch(target_message)
     .then(async (message) => {
       // Check for embed and image on target
       if (message.embeds[0] === undefined) {
-        channel.send('No embed found on target.');
+        message.channel.send('No embed found on target.');
         return;
       }
       let date_image = message.embeds[0].image;
       if (date_image === null) {
-        channel.send('No image found on target.');
+        message.channel.send('No image found on target.');
         return;
       }
       
@@ -53,7 +53,7 @@ client.on('message', async (message) => {
     }).catch((error) => {
       console.error(error);
       if (error.name === 'DiscordAPIError') {
-        channel.send('Target message not found.');
+        message.channel.send('Target message not found.');
       }
     });
   }
