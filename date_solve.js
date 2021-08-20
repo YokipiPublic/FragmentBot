@@ -233,19 +233,28 @@ date_solve.karuta_date_solve = function (channel, image_url) {
 
       // Place attractions 
       let att = 0;
-      let gas_count = 0;
+	  const promises = [];
+	  const sub_srcs = []
       while (att < 35) {
         const loc = attraction_locations[att];
         let sub_src = new cv.Mat();
         let rect = new cv.Rect(loc[0], loc[1], 32, 32);
         sub_src = src.roi(rect);
-        let best_match = await emoji_match(sub_src, possible_attractions);
-        if (best_match === 'G')
-          best_match = String.fromCharCode(48 + ++gas_count);
-        board[2*((att/5)|0)+1][2*(att%5)+1] = best_match;
-        sub_src.delete();
+		promises.push(emoji_match(sub_src, possible_attractions));
+		sub_srcs.push(sub_src);
         att++;
       }
+	  att = 0;
+	  let gas_count = 0;
+	  const best_matches = await Promise.all(promises);
+	  while (att < 35) {
+		let best_match = best_matches[att];
+	    if (best_match === 'G')
+          best_match = String.fromCharCode(48 + ++gas_count);
+        board[2*((att/5)|0)+1][2*(att%5)+1] = best_match;
+		sub_srcs[att].delete();
+		att++;
+	  }
 
       // Place vertical roads
       att = 0;
